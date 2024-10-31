@@ -65,10 +65,30 @@
         scratchCtx.fill();
     }
 
+    // Ajustement des coordonnées pour les événements de souris
+    function getMousePos(e) {
+        const rect = scratchCanvas.getBoundingClientRect();
+        return {
+            x: (e.clientX - rect.left) * (scratchCanvas.width / rect.width),
+            y: (e.clientY - rect.top) * (scratchCanvas.height / rect.height)
+        };
+    }
+
+    // Ajustement des coordonnées pour les événements tactiles
+    function getTouchPos(e) {
+        const rect = scratchCanvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        return {
+            x: (touch.clientX - rect.left) * (scratchCanvas.width / rect.width),
+            y: (touch.clientY - rect.top) * (scratchCanvas.height / rect.height)
+        };
+    }
+
     // Détection du mouvement continu pour suivre le tracé du doigt ou de la souris
     scratchCanvas.addEventListener('mousedown', (e) => {
         scratchCanvas.addEventListener('mousemove', onMouseMove);
-        scratch(e.clientX - scratchCanvas.getBoundingClientRect().left, e.clientY - scratchCanvas.getBoundingClientRect().top); // Gratte au point initial
+        const pos = getMousePos(e);
+        scratch(pos.x, pos.y); // Gratte au point initial
     });
 
     scratchCanvas.addEventListener('mouseup', () => {
@@ -76,15 +96,15 @@
     });
 
     function onMouseMove(e) {
-        const rect = scratchCanvas.getBoundingClientRect();
-        scratch(e.clientX - rect.left, e.clientY - rect.top);
+        const pos = getMousePos(e);
+        scratch(pos.x, pos.y);
     }
 
     // Prise en charge du tactile pour mobile
     scratchCanvas.addEventListener('touchstart', (e) => {
         scratchCanvas.addEventListener('touchmove', onTouchMove);
-        const touch = e.touches[0];
-        scratch(touch.clientX - scratchCanvas.getBoundingClientRect().left, touch.clientY - scratchCanvas.getBoundingClientRect().top); // Gratte au point initial
+        const pos = getTouchPos(e);
+        scratch(pos.x, pos.y); // Gratte au point initial
         e.preventDefault(); // Empêche le défilement pendant le grattage
     });
 
@@ -93,9 +113,8 @@
     });
 
     function onTouchMove(e) {
-        const rect = scratchCanvas.getBoundingClientRect();
-        const touch = e.touches[0];
-        scratch(touch.clientX - rect.left, touch.clientY - rect.top);
+        const pos = getTouchPos(e);
+        scratch(pos.x, pos.y);
         e.preventDefault(); // Empêche le défilement pendant le grattage
     }
 </script>
