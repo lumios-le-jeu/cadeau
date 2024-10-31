@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte à Gratter</title>
+    <style>
+        body { text-align: center; }
+        #backgroundCanvas, #scratchCanvas {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+
+<h2>Carte à Gratter</h2>
+<!-- Canvas pour l'image de fond -->
+<canvas id="backgroundCanvas" width="800" height="600"></canvas>
+<!-- Canvas pour l'image de grattage -->
+<canvas id="scratchCanvas" width="800" height="600"></canvas>
+
+<script>
+    const backgroundCanvas = document.getElementById('backgroundCanvas');
+    const scratchCanvas = document.getElementById('scratchCanvas');
+    const bgCtx = backgroundCanvas.getContext('2d');
+    const scratchCtx = scratchCanvas.getContext('2d');
+    const SCRATCH_RADIUS = 40;  // Taille du cercle de grattage doublée
+
+    // Utilisation des chemins relatifs pour les images stockées dans le dépôt
+    const foregroundImg = new Image();
+    const backgroundImg = new Image();
+
+    foregroundImg.src = './gratte_lumios.JPG'; // Chemin relatif pour "gratte"
+    backgroundImg.src = './bon_lumios.JPG';    // Chemin relatif pour "bon"
+
+    // Dessiner l'image de fond sur le backgroundCanvas
+    backgroundImg.onload = () => {
+        bgCtx.drawImage(backgroundImg, 0, 0, backgroundCanvas.width, backgroundCanvas.height);
+    };
+
+    // Dessiner l'image de premier plan sur le scratchCanvas comme masque
+    foregroundImg.onload = () => {
+        scratchCtx.drawImage(foregroundImg, 0, 0, scratchCanvas.width, scratchCanvas.height);
+        scratchCtx.globalCompositeOperation = 'destination-out';
+    };
+
+    // Fonction de grattage avec suivi du mouvement
+    function scratch(x, y) {
+        scratchCtx.beginPath();
+        scratchCtx.arc(x, y, SCRATCH_RADIUS, 0, 2 * Math.PI);
+        scratchCtx.fill();
+    }
+
+    // Détection du mouvement continu pour suivre le tracé du doigt ou de la souris
+    scratchCanvas.addEventListener('mousedown', (e) => {
+        scratchCanvas.addEventListener('mousemove', onMouseMove);
+        scratch(e.clientX - scratchCanvas.getBoundingClientRect().left, e.clientY - scratchCanvas.getBoundingClientRect().top); // Gratte au point initial
+    });
+
+    scratchCanvas.addEventListener('mouseup', () => {
+        scratchCanvas.removeEventListener('mousemove', onMouseMove);
+    });
+
+    function onMouseMove(e) {
+        const rect = scratchCanvas.getBoundingClientRect();
+        scratch(e.clientX - rect.left, e.clientY - rect.top);
+    }
+
+    // Prise en charge du tactile pour mobile
+    scratchCanvas.addEventListener('touchstart', (e) => {
+        scratchCanvas.addEventListener('touchmove', onTouchMove);
+        const touch = e.touches[0];
+        scratch(touch.clientX - scratchCanvas.getBoundingClientRect().left, touch.clientY - scratchCanvas.getBoundingClientRect().top); // Gratte au point initial
+        e.preventDefault(); // Empêche le défilement pendant le grattage
+    });
+
+    scratchCanvas.addEventListener('touchend', () => {
+        scratchCanvas.removeEventListener('touchmove', onTouchMove);
+    });
+
+    function onTouchMove(e) {
+        const rect = scratchCanvas.getBoundingClientRect();
+        const touch = e.touches[0];
+        scratch(touch.clientX - rect.left, touch.clientY - rect.top);
+        e.preventDefault(); // Empêche le défilement pendant le grattage
+    }
+</script>
+
+</body>
+</html>
