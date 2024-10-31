@@ -7,19 +7,31 @@
     <style>
         body { text-align: center; }
         #backgroundCanvas, #scratchCanvas {
+            max-width: 100%;
+            height: auto;
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
+        }
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            margin: 0 auto;
         }
     </style>
 </head>
 <body>
 
 <h2>Carte à Gratter</h2>
-<!-- Canvas pour l'image de fond -->
-<canvas id="backgroundCanvas" width="800" height="600"></canvas>
-<!-- Canvas pour l'image de grattage -->
-<canvas id="scratchCanvas" width="800" height="600"></canvas>
+
+<div class="container">
+    <!-- Canvas pour l'image de fond -->
+    <canvas id="backgroundCanvas" width="800" height="600"></canvas>
+    <!-- Canvas pour l'image de grattage -->
+    <canvas id="scratchCanvas" width="800" height="600"></canvas>
+</div>
 
 <script>
     const backgroundCanvas = document.getElementById('backgroundCanvas');
